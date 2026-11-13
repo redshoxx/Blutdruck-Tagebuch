@@ -555,11 +555,11 @@
         const days=Array.from({length:7},(_,i)=>{
           const date=dayOffset(start,i),r=state.records.get(date)||emptyRecord(date);
           return `<div class="print-card"><div class="print-day-head">${esc(dateLong.format(dateObj(date)))}</div>${DAY_PARTS.map(p=>{
-            const m=r.measurements[p],pressure=[m.systolic||'____',m.diastolic||'____'].join(' / ')+' · '+(m.pulse||'____');
-            return `<div class="print-values"><div>${partNames[p]}</div><div>${esc(m.time)}</div><div>${esc(pressure)}</div><div>${esc(m.note)}</div></div>`;
+            const m=r.measurements[p];
+            return `<div class="print-values"><div>${partNames[p]}</div><div>${esc(m.time)}</div><div>${esc(m.systolic)}</div><div>${esc(m.diastolic)}</div><div>${esc(m.pulse)}</div><div>${esc(m.note)}</div></div>`;
           }).join('')}</div>`;
         }).join('');
-        return `<section class="print-page"><div class="print-table-head"><div>Tageszeit</div><div>Uhrzeit</div><div>SYS / DIA (mmHg) · Puls (/min)</div><div>Notiz</div></div>${days}</section>`;
+        return `<section class="print-page"><div class="print-table-head"><div>Tageszeit</div><div>Uhrzeit</div><div>SYS</div><div>DIA</div><div>Puls</div><div>Notiz</div></div>${days}</section>`;
       }).join('');
       return true;
     }
