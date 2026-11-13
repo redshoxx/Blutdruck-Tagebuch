@@ -38,7 +38,7 @@
     .mini-label, .mobile-field-label { display:none; }
     .table-header { display:grid; grid-template-columns: 14% 12% 28% 1fr 46px; align-items:center; background:var(--red); color:white; min-height:46px; padding:0 8px; font-size:15px; font-weight:700; border-radius:4px; }
     .table-header >div { padding:11px 10px; }
-    .table-header >div:nth-child(2),.table-header >div:nth-child(3) { text-align:center; }
+    .table-header >div:nth-child(1),.table-header >div:nth-child(2),.table-header >div:nth-child(3) { text-align:center; }
     .day-list { margin-top:15px; }
     .day-card { border:1px solid #c8cbd1; background:#fff; margin-bottom:22px; border-radius:3px; overflow:hidden; box-shadow:0 1px 1px #00000007; }
     .day-head { display:flex; gap:16px; align-items:center; padding:11px 15px; min-height:56px; background:linear-gradient(180deg,#f1f1f3,#ebebee); }
@@ -52,9 +52,9 @@
     .measurement { display:grid; grid-template-columns: 14% 12% 28% 1fr 46px; padding:0 8px; align-items:center; min-height:75px; border-top:1px solid #d9dade; }
     .measurement > div { padding:6px 6px; }
     .measurement > div:not(:last-child) { border-right:1px solid #e7e7eb; }
-    .period { font-size:16px; font-weight:700; display:flex; gap:12px; align-items:center; }
+    .period { font-size:16px; font-weight:700; display:flex; gap:12px; align-items:center; justify-content:center; text-align:center; }
     .period svg { width:23px; height:23px; color:var(--red); flex-shrink:0; }
-    .time-choice { width:100%; max-width:126px; text-align:center; padding-inline:5px; }
+    .time-choice { display:block; width:100%; max-width:126px; margin-inline:auto; text-align:center; padding-inline:5px; }
     .pressure { display:flex; justify-content:center; align-items:center; gap:5px; white-space:nowrap; }
     .bp-input { width:64px; min-width:0; text-align:center; padding-left:4px; padding-right:4px; }
     .bp-input.pulse-input { width:67px; }
@@ -152,7 +152,8 @@
       .measurement > .note-cell { grid-column:1/-1; grid-row:3; }
       .measurement > .action-spacer { display:none; }
       .mobile-field-label, .mini-label { display:block; color:#444; font-size:11px; font-weight:700; letter-spacing:.02em; margin-bottom:4px; }
-      .time-choice { display:block; width:100%; max-width:155px; min-height:46px; font-size:16px; padding:7px 5px; }
+      .pressure .mini-label { text-align:center; }
+      .time-choice { display:block; width:100%; max-width:155px; min-height:46px; font-size:16px; padding:7px 5px; margin-inline:auto; }
       .pressure { width:100%; gap:8px; justify-content:space-between; align-items:end; }
       .bp-field { display:flex; min-width:0; flex:1 1 0; flex-direction:column; }
       .bp-input, .bp-input.pulse-input { display:block; width:100%; max-width:none; min-height:46px; font-size:16px; padding:8px 3px; border-radius:3px; }
@@ -184,18 +185,19 @@
       .print-table-head,.print-values { display:grid; grid-template-columns:12% 10% 9% 9% 9% 51%; }
       .print-table-head { padding:0; font-weight:700; color:#000!important; background:#fff!important; line-height:6.2mm; border:1pt solid #000; font-size:8.2pt; margin-bottom:1.2mm; }
       .print-table-head > div { padding:.55mm 1mm; }
+      .print-table-head > div:not(:last-child) { text-align:center; }
       .print-table-head > div:not(:last-child) { border-right:.55pt solid #000; }
       .print-table-head div:nth-child(2),.print-table-head div:nth-child(3),.print-table-head div:nth-child(4),.print-table-head div:nth-child(5) { text-align:center; }
       .print-card { border:1pt solid #000; margin-top:1.4mm; break-inside:avoid; page-break-inside:avoid; }
-      .print-day-head { font-weight:700; padding:1.2mm 2.2mm; font-size:9.6pt; line-height:4.6mm; border-bottom:.85pt solid #000; background:#fff!important; }
+      .print-day-head { font-weight:700; padding:1.2mm 2.2mm; font-size:9.6pt; line-height:4.6mm; border-bottom:.85pt solid #000; background:#fff!important; text-align:center; }
       .print-values { height:9.6mm; min-height:9.6mm; align-items:stretch; border-top:.55pt solid #9a9a9a; padding:0; }
       .print-values:first-of-type { border-top:0; }
-      .print-values >div { min-width:0; padding:1.25mm 1.35mm; font-size:9.1pt; display:flex; align-items:flex-start; }
+      .print-values >div { min-width:0; padding:1.25mm 1.35mm; font-size:9.1pt; display:flex; align-items:center; }
       .print-values >div:not(:last-child) { border-right:.45pt solid #9a9a9a; }
-      .print-values > div:nth-child(1) { font-weight:700; border-right:.65pt solid #666; }
+      .print-values > div:nth-child(1) { font-weight:700; border-right:.65pt solid #666; justify-content:center; text-align:center; }
       .print-values > div:nth-child(2),.print-values > div:nth-child(3),.print-values > div:nth-child(4),.print-values > div:nth-child(5) { justify-content:center; text-align:center; }
       .print-values > div:nth-child(5) { border-right:.7pt solid #666; }
-      .print-values > div:nth-child(6) { overflow:visible; overflow-wrap:anywhere; white-space:pre-wrap; line-height:11pt; }
+      .print-values > div:nth-child(6) { overflow:visible; overflow-wrap:anywhere; white-space:pre-wrap; line-height:11pt; align-items:flex-start; justify-content:flex-start; text-align:left; }
     }
   
   /* Installed PWA: safe area and minimalist installation hints. */
