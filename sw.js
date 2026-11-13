@@ -1,6 +1,6 @@
 // Caches ONLY the offline application shell; blood pressure records stay in IndexedDB.
-const CACHE='blutdruck-pwa-shell-v7';
-const ASSETS=['./index.html','./styles.css','./app.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-512-maskable.png','./icons/apple-touch-icon.png'];
+const CACHE='blutdruck-pwa-shell-v8';
+const ASSETS=['./index.html','./styles.css','./app.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-512-maskable.png','./icons/apple-touch-icon.png','./icons/favicon-48.png','./favicon.ico'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
 });
