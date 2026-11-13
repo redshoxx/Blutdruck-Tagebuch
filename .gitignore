@@ -1,0 +1,7 @@
+# Niemals persönliche Gesundheitswerte oder Sicherungsdateien committen
+*.backup.json
+*backup*.json
+*sicherung*.json
+*messwerte*.json
+.DS_Store
+Thumbs.db

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="de-AT">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="light" name="color-scheme"/>
+<title>Blutdruck-Tagebuch · Offline-PWA</title>
+
+<meta content="#ffffff" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="default" name="apple-mobile-web-app-status-bar-style"/><meta content="Blutdruck" name="apple-mobile-web-app-title"/><meta content="Privates Blutdruck-Tagebuch für Kalenderwochen, offline und lokal gespeichert." name="description"/><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'"/><link href="manifest.webmanifest" rel="manifest"/><link href="icons/apple-touch-icon.png" rel="apple-touch-icon"/><link href="icons/icon-192.png" rel="icon"/><link href="styles.css" rel="stylesheet"/></head>
+<body>
+<main class="app">
+<header class="top">
+<div class="brand">
+<svg aria-hidden="true" class="heart" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.6" viewbox="0 0 72 68">
+<path d="M36 59 9 32C-4 19 9-2 26 10c4 3 7 7 10 11C48-1 68 8 68 26c0 7-3 11-9 17L36 59Z"></path>
+<path d="M7 37h14l6-12 8 19 7-11h12"></path>
+</svg>
+<div><h1>Blutdruck-Tabelle</h1><p class="subtitle">Messwerte nach Tag und Tageszeit · auch auf dem Smartphone</p></div>
+</div>
+<div class="top-controls">
+<label class="date-label" for="selectedWeek">Kalenderwoche:</label>
+<button aria-label="Vorherige Kalenderwoche" class="nav" id="prevWeek" title="Vorherige Kalenderwoche" type="button">‹</button>
+<input aria-label="Kalenderwoche auswählen" class="week-choice" id="selectedWeek" type="week"/>
+<div class="week-fallback" hidden="" id="weekFallback">
+<label class="sr-only" for="weekNumber">Kalenderwoche</label><select aria-label="Kalenderwoche" id="weekNumber"></select>
+<label class="sr-only" for="weekYear">Jahr</label><select aria-label="Jahr" id="weekYear"></select>
+</div>
+<button aria-label="Nächste Kalenderwoche" class="nav" id="nextWeek" title="Nächste Kalenderwoche" type="button">›</button>
+<button class="secondary current-week" id="currentWeekBtn" type="button">Aktuelle Woche</button>
+</div>
+</header>
+<details class="options" id="optionsPanel">
+<summary class="options-summary">Drucken, Sicherung und Einstellungen</summary>
+<section aria-label="Drucken und Datensicherung" class="tools">
+<button class="primary" id="printBtn" type="button"><svg aria-hidden="true" fill="none" height="17" stroke="currentColor" stroke-width="2" style="vertical-align:-4px;margin-right:5px" viewbox="0 0 24 24" width="17"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"></path></svg>Woche auf A4 drucken / PDF</button>
+<label class="sr-only" for="printScope">Welche Wochen drucken?</label>
+<select class="print-select" id="printScope"><option value="selected">Ausgewählte Woche (Mo–So)</option><option value="all">Alle Wochen mit Messwerten</option></select>
+<button class="secondary" id="backupBtn" type="button">Sicherung speichern</button>
+<button class="secondary" id="importBtn" type="button">Sicherung öffnen</button>
+<button class="secondary" id="protectBtn" type="button">Passwortschutz</button>
+<button class="secondary" hidden="" id="linkFileBtn" type="button">Auto-Sicherung auf PC</button>
+<input accept=".json,application/json" hidden="" id="importFile" type="file"/>
+</section>
+</details><details class="install-panel"><summary>Auf dem iPhone installieren</summary><p>Die App einmal über eine HTTPS-Adresse in Safari öffnen. Dann Teilen → Zum Home-Bildschirm → Hinzufügen. Danach vom Home-Bildschirm starten; die App funktioniert auch offline.</p><p>Beim ersten Umstieg aus einer alten HTML-Datei vorher eine JSON-Sicherung erstellen und hier über „Sicherung öffnen“ einlesen. Speicherungen sind gerätegebunden; regelmäßige Sicherungsdateien schützen vor Datenverlust.</p></details>
+<div class="status-line"><span aria-live="polite" class="status" id="saveStatus" role="status">Lokaler Speicher wird geladen …</span></div>
+<p class="hint"><strong id="weekHeading"></strong> · Uhrzeiten zunächst leer. SYS / DIA / Puls und Notiz direkt eintragen.</p>
+<h2 class="mobile-section-title">Wochentabelle <small>Montag – Sonntag</small></h2>
+<div aria-hidden="true" class="table-header"><div>Tageszeit</div><div>Uhrzeit</div><div>Blutdruck (mmHg) · Puls (/min)</div><div>Notiz</div><div></div></div>
+<div class="startup-notice" id="startupNotice" role="status">Die Wochentabelle ist als Vorschau sichtbar. Zum Eingeben und automatischen Speichern die Datei in Safari, Chrome oder Edge öffnen. Eine reine Dateivorschau unterstützt die Funktionen möglicherweise nicht.</div>
+<div aria-live="polite" class="day-list" id="dayList"><section class="day-card static-day" data-date=""><div class="day-head"><div class="day-title">Montag</div></div><div class="measurement">
+<div class="period"><span>Früh</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Mittag</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Abends</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div></section><section class="day-card static-day" data-date=""><div class="day-head"><div class="day-title">Dienstag</div></div><div class="measurement">
+<div class="period"><span>Früh</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Mittag</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Abends</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div></section><section class="day-card static-day" data-date=""><div class="day-head"><div class="day-title">Mittwoch</div></div><div class="measurement">
+<div class="period"><span>Früh</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Mittag</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Abends</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div></section><section class="day-card static-day" data-date=""><div class="day-head"><div class="day-title">Donnerstag</div></div><div class="measurement">
+<div class="period"><span>Früh</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Mittag</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Abends</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div></section><section class="day-card static-day" data-date=""><div class="day-head"><div class="day-title">Freitag</div></div><div class="measurement">
+<div class="period"><span>Früh</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Mittag</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Abends</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div></section><section class="day-card static-day" data-date=""><div class="day-head"><div class="day-title">Samstag</div></div><div class="measurement">
+<div class="period"><span>Früh</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Mittag</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Abends</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div></section><section class="day-card static-day" data-date=""><div class="day-head"><div class="day-title">Sonntag</div></div><div class="measurement">
+<div class="period"><span>Früh</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Mittag</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div><div class="measurement">
+<div class="period"><span>Abends</span></div>
+<div class="time-cell"><span class="mobile-field-label">Uhrzeit</span><span class="fallback-field">—</span></div>
+<div class="pressure-cell"><div class="pressure">
+<span class="bp-field"><span class="mini-label">Systole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Diastole</span><span class="fallback-field">—</span></span>
+<span class="bp-field"><span class="mini-label">Puls</span><span class="fallback-field">—</span></span>
+</div></div>
+<div class="note-cell"><span class="mobile-field-label">Notiz</span><span class="fallback-field">—</span></div>
+<div class="action-spacer"></div>
+</div></section></div>
+<p class="bottom-help">Speicherung: Einträge werden nur auf diesem Gerät in IndexedDB gespeichert (ersatzweise im Browser-Speicher), nicht an einen Server übertragen. Freiwilliger Passwortschutz verschlüsselt die Daten lokal. Zusätzlich regelmäßig über „Sicherung speichern“ exportieren: Das Löschen der App oder Browserdaten kann alle lokalen Daten entfernen. Druck: Eine ganze Kalenderwoche pro A4-Seite in Schwarz-Weiß. Im Druckdialog Kopf- und Fußzeilen deaktivieren.</p>
+</main>
+<div aria-hidden="true" class="print-report" id="printReport"></div>
+<dialog aria-describedby="passwordText" aria-labelledby="passwordTitle" id="passwordDialog">
+<form id="passwordForm" method="dialog">
+<h2 id="passwordTitle" style="margin:0 0 10px;font-size:20px">Datenschutz</h2>
+<p id="passwordText" style="margin:0 0 16px;font-size:14px;line-height:1.5"></p>
+<label for="passwordInput" style="display:block;font-weight:700;font-size:14px;margin-bottom:5px">Passwort</label>
+<input autocomplete="off" class="field" id="passwordInput" minlength="8" required="" style="width:100%" type="password"/>
+<div id="passwordRepeatArea" style="margin-top:12px">
+<label for="passwordRepeat" style="display:block;font-weight:700;font-size:14px;margin-bottom:5px">Passwort wiederholen</label>
+<input autocomplete="off" class="field" id="passwordRepeat" minlength="8" style="width:100%" type="password"/>
+</div>
+<p class="error" id="passwordError" role="alert" style="min-height:18px;font-size:13px"></p>
+<div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap">
+<button class="secondary" id="passwordCancel" type="button">Abbrechen</button>
+<button class="primary" type="submit">Bestätigen</button>
+</div>
+</form>
+</dialog>
+
+<script defer="True" src="app.js"></script></body>
+</html>

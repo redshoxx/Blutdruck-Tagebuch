@@ -1,0 +1,25 @@
+BLUTDRUCK-TAGEBUCH – INSTALLIERBARE PWA (iPHONE & PC)
+========================================================
+
+1. Inhalt des ZIP-Archivs vollständig in ein HTTPS-Verzeichnis auf deinem Webserver kopieren.
+   Die Datei index.html alleine reicht NICHT für eine PWA.
+2. Auf dem iPhone in Safari die HTTPS-Adresse öffnen.
+3. Über Teilen -> Zum Home-Bildschirm -> Hinzufügen installieren.
+4. Beim ersten Besuch mit Internet laden; danach ist die App offline verfügbar.
+
+WICHTIG ZU DATEN:
+* Blutdruckwerte werden AUSSCHLIESSLICH lokal auf dem jeweiligen Gerät gespeichert
+  (IndexedDB, bei Ausfall als Ersatz Browser-Speicher). Kein Sync zum Webserver.
+* Der Server sieht beim Laden die übliche Netzwerkverbindung/IP, keine Messwerte.
+* Der Passwortschutz ist OPTIONAL, wird in der App aktiviert.
+* Automatisches Speichern schützt nicht vor Löschen von Website-Daten oder der App.
+  Regelmäßig per "Sicherung speichern" eine JSON-Datei in der Dateien-App sichern.
+* Zum Wechsel von der alten HTML-Datei: Dort Sicherung speichern, in PWA importieren.
+* Verliert man das Passwort der verschlüsselten Sicherung, ist kein Zugriff mehr möglich.
+
+Druck: 1 Kalenderwoche (Montag–Sonntag) pro A4-Seite. Browser-Druckoption
+"Kopf- und Fußzeilen" ausschalten. Weiterhin Schwarz-Weiß.
+
+Server-Empfehlungen: HTTPS, korrekter MIME-Typ für .webmanifest (application/manifest+json),
+Service-Worker als text/javascript, Cache-Control no-cache für sw.js und index.html.
+Keine Tracking-Skripte, externen Stylesheets oder externen Ressourcen hinzufügen.
