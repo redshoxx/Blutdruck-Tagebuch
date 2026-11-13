@@ -53,7 +53,7 @@
       return isoWeekValue(monday)===v?monday:null;
     }
     const defaultMeasure=p=>({time:'',systolic:'',diastolic:'',pulse:'',note:''});
-    const emptyRecord=date=>({date,collapsed:false,measurements:Object.fromEntries(DAY_PARTS.map(p=>[p,defaultMeasure(p)]))});
+    const emptyRecord=date=>({date,measurements:Object.fromEntries(DAY_PARTS.map(p=>[p,defaultMeasure(p)]))});
     function validNum(v) {return /^\d{0,3}$/.test(String(v ?? ''))?String(v ?? ''):'';}
     function normalizeMeasure(m,p) {
       return {
@@ -488,7 +488,7 @@
         <div class="period">${svg({frueh:'sunrise',mittag:'sun',abends:'moon'}[part])}<span>${partNames[part]}</span></div>
         <div class="time-cell"><label class="mobile-field-label" for="time-${key}">Uhrzeit</label><label class="sr-only" for="time-${key}">Uhrzeit ${partNames[part]}</label><input class="time-choice" id="time-${key}" data-field="time" data-period="${part}" type="time" step="60" value="${esc(m.time)}"></div>
         <div class="pressure-cell"><div class="pressure"><label class="bp-field" for="sys-${key}"><span class="mini-label">Systole (SYS)</span><input class="field bp-input" id="sys-${key}" type="number" min="30" max="300" step="1" inputmode="numeric" aria-label="Systole ${partNames[part]}" placeholder="SYS" data-field="systolic" data-period="${part}" value="${esc(m.systolic)}"></label><span class="slash">/</span><label class="bp-field" for="dia-${key}"><span class="mini-label">Diastole (DIA)</span><input class="field bp-input" id="dia-${key}" type="number" min="20" max="220" step="1" inputmode="numeric" aria-label="Diastole ${partNames[part]}" placeholder="DIA" data-field="diastolic" data-period="${part}" value="${esc(m.diastolic)}"></label><span class="slash">·</span><label class="bp-field" for="pulse-${key}"><span class="mini-label">Puls</span><input class="field bp-input pulse-input" id="pulse-${key}" type="number" min="20" max="250" step="1" inputmode="numeric" aria-label="Puls ${partNames[part]} (Schläge pro Minute)" placeholder="Puls" title="Puls pro Minute" data-field="pulse" data-period="${part}" value="${esc(m.pulse)}"></label></div></div>
-        <div class="note-cell"><label class="mobile-field-label" for="note-${key}">Notiz</label><label class="sr-only" for="note-${key}">Notiz ${partNames[part]}</label><textarea class="field note" id="note-${key}" data-field="note" data-period="${part}" rows="1" maxlength="500" placeholder="Optionale Notiz">${esc(m.note)}</textarea></div><div class="action-spacer"></div>
+        <div class="note-cell"><label class="mobile-field-label" for="note-${key}">Notiz</label><label class="sr-only" for="note-${key}">Notiz ${partNames[part]}</label><textarea class="field note" id="note-${key}" data-field="note" data-period="${part}" rows="1" maxlength="500" placeholder="Optionale Notiz">${esc(m.note)}</textarea></div>
       </div>`;
     }
     // Some mobile browsers (notably Safari on iPhone) do not support type=week.
@@ -526,9 +526,9 @@
       $('startupNotice').hidden=true;
       $('dayList').innerHTML=Array.from({length:7},(_,i)=>{
         const date=dayOffset(monday,i),r=state.records.get(date)||emptyRecord(date);
-        return `<section class="day-card${r.collapsed?' collapsed':''}" data-date="${date}">
+        return `<section class="day-card" data-date="${date}">
           <header class="day-head"><div class="day-title">${svg('calendar')}<span class="date-text">${esc(dateLong.format(dateObj(date)))}</span></div>
-          <div class="day-controls"><button type="button" class="icon-btn" data-action="toggle" title="Tag ein- oder ausklappen" aria-label="Tag ein- oder ausklappen" aria-expanded="${!r.collapsed}">${svg('chevron').replace('<svg','<svg class="'+(r.collapsed?'rotate':'')+'"')}</button><button type="button" class="icon-btn danger" data-action="clear" title="Messwerte dieses Tages löschen" aria-label="Messwerte dieses Tages löschen">${svg('trash')}</button></div></header>
+          </header>
           ${DAY_PARTS.map(p=>rowMarkup(r,p)).join('')}
         </section>`;
       }).join('');
@@ -715,21 +715,6 @@
     $('currentWeekBtn').addEventListener('click',()=>{state.selectedDate=localToday();render();});
     $('dayList').addEventListener('input',e=>{if(e.target.dataset.field && e.target.dataset.field!=='time')updateField(e.target);});
     $('dayList').addEventListener('change',e=>{if(e.target.dataset.field)updateField(e.target);});
-    $('dayList').addEventListener('click',e=>{
-      const b=e.target.closest('button[data-action]');if(!b)return;
-      const date=b.closest('[data-date]')?.dataset.date;if(!date)return;
-      const rec=state.records.get(date)||emptyRecord(date);
-      if(b.dataset.action==='toggle') {
-        rec.collapsed=!rec.collapsed;
-        // Collapse states are intentionally not stored: they are not health data.
-        const card=b.closest('.day-card');card.classList.toggle('collapsed',rec.collapsed);
-        b.setAttribute('aria-expanded',String(!rec.collapsed));b.querySelector('svg')?.classList.toggle('rotate',rec.collapsed);
-        if(state.records.has(date))state.records.get(date).collapsed=rec.collapsed;
-      }
-      if(b.dataset.action==='clear' && confirm('Alle Messwerte und Notizen vom '+dateShort.format(dateObj(date))+' zurücksetzen?')){
-        state.records.delete(date);render();persist();
-      }
-    });
     $('printBtn').addEventListener('click',()=>{if(buildPrintReport())requestAnimationFrame(()=>window.print());});
     $('backupBtn').addEventListener('click',()=>void exportBackup());
     $('importBtn').addEventListener('click',()=>$('importFile').click());
