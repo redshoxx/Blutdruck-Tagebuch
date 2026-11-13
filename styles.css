@@ -178,7 +178,7 @@
       .print-table-head > div:not(:last-child) { border-right:.55pt solid #000; }
       .print-table-head div:nth-child(2),.print-table-head div:nth-child(3),.print-table-head div:nth-child(4),.print-table-head div:nth-child(5) { text-align:center; }
       .print-card { border:1pt solid #000; margin-top:1.4mm; break-inside:avoid; page-break-inside:avoid; }
-      .print-day-head { font-weight:700; padding:1.2mm 2.2mm; font-size:9.6pt; line-height:4.6mm; border-bottom:.85pt solid #000; background:#fff!important; text-align:center; }
+      .print-day-head { font-weight:700; padding:1.2mm 2.2mm; font-size:9.6pt; line-height:4.6mm; border-bottom:.85pt solid #000; background:#fff!important; text-align:left; }
       .print-values { height:9.6mm; min-height:9.6mm; align-items:stretch; border-top:.55pt solid #9a9a9a; padding:0; }
       .print-values:first-of-type { border-top:0; }
       .print-values >div { min-width:0; padding:1.25mm 1.35mm; font-size:9.1pt; display:flex; align-items:center; }
