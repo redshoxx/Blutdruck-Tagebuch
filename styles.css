@@ -36,7 +36,7 @@
     .week-fallback #weekYear { flex:1; }
     .bp-field { display:contents; }
     .mini-label, .mobile-field-label { display:none; }
-    .table-header { display:grid; grid-template-columns: 14% 12% 28% 1fr 46px; align-items:center; background:var(--red); color:white; min-height:46px; padding:0 8px; font-size:15px; font-weight:700; border-radius:4px; }
+    .table-header { display:grid; grid-template-columns: 14% 12% 28% 1fr; align-items:center; background:var(--red); color:white; min-height:46px; padding:0 8px; font-size:15px; font-weight:700; border-radius:4px; }
     .table-header >div { padding:11px 10px; }
     .table-header >div:nth-child(1),.table-header >div:nth-child(2),.table-header >div:nth-child(3) { text-align:center; }
     .day-list { margin-top:15px; }
@@ -45,11 +45,7 @@
     .day-title { display:flex; align-items:center; gap:12px; font-size:19px; font-weight:700; flex:1; }
     .day-title svg { flex-shrink:0; }
 
-    .day-controls { display:flex; gap:6px; align-items:center; }
-    .icon-btn { display:flex; justify-content:center; align-items:center; border:0; background:transparent; width:35px; height:35px; border-radius:4px; color:#222; }
-    .icon-btn:hover { background:#dddde1; }
-    .icon-btn.danger:hover { background:#eaeaea; color:#111111; }
-    .measurement { display:grid; grid-template-columns: 14% 12% 28% 1fr 46px; padding:0 8px; align-items:center; min-height:75px; border-top:1px solid #d9dade; }
+    .measurement { display:grid; grid-template-columns: 14% 12% 28% 1fr; padding:0 8px; align-items:center; min-height:75px; border-top:1px solid #d9dade; }
     .measurement > div { padding:6px 6px; }
     .measurement > div:not(:last-child) { border-right:1px solid #e7e7eb; }
     .period { font-size:16px; font-weight:700; display:flex; gap:12px; align-items:center; justify-content:center; text-align:center; }
@@ -62,8 +58,6 @@
     .slash { font-size:18px; }
     .note { display:block; width:100%; min-width:50px; padding:9px 10px; resize:vertical; min-height:65px; max-height:240px; font-size:14px; line-height:1.4; }
     .note::placeholder { color:#999; }
-    .day-card.collapsed .measurement { display:none; }
-    .rotate { transform:rotate(180deg); }
     .empty { padding:30px; text-align:center; color:#636363; border:1px solid var(--line); background:white; }
     .bottom-help { margin-top:20px; padding:13px 0; font-size:13px; color:#666; line-height:1.6; }
     .bottom-help b { color:#333; }
@@ -80,7 +74,7 @@
       .top { align-items:flex-start; }
       h1 { font-size:30px; }
       .heart { width:54px; height:54px; }
-      .table-header,.measurement { grid-template-columns: 17% 13% 30% 1fr 35px; }
+      .table-header,.measurement { grid-template-columns: 17% 13% 30% 1fr; }
       .table-header { font-size:13px; }
       .measurement { padding:0 4px; }
       .measurement > div { padding:7px 5px; }
@@ -141,8 +135,6 @@
       .day-head { padding:10px 11px; min-height:55px; gap:5px; flex-wrap:nowrap; }
       .day-title { min-width:0; width:auto; flex:1 1 auto; font-size:15px; line-height:1.25; gap:7px; }
       .day-title svg { width:20px; height:20px; }
-      .day-controls { margin:0; flex:0 0 auto; gap:0; }
-      .icon-btn { width:42px; height:44px; }
       .measurement { display:grid; grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr); column-gap:6px; row-gap:9px; min-height:0; padding:11px 12px 12px; }
       .measurement > div { min-width:0; border:0!important; padding:0!important; }
       .measurement > .period { grid-column:1; grid-row:1; align-self:end; min-height:46px; font-size:16px; gap:6px; }
@@ -150,7 +142,6 @@
       .measurement > .time-cell { grid-column:2; grid-row:1; }
       .measurement > .pressure-cell { grid-column:1/-1; grid-row:2; }
       .measurement > .note-cell { grid-column:1/-1; grid-row:3; }
-      .measurement > .action-spacer { display:none; }
       .mobile-field-label, .mini-label { display:block; color:#444; font-size:11px; font-weight:700; letter-spacing:.02em; margin-bottom:4px; }
       .pressure .mini-label { text-align:center; }
       .time-choice { display:block; width:100%; max-width:155px; min-height:46px; font-size:16px; padding:7px 5px; margin-inline:auto; }
@@ -162,13 +153,11 @@
       .bottom-help { margin-top:8px; font-size:12px; line-height:1.55; }
       dialog { max-width:calc(100vw - 24px); padding:18px; }
       dialog .field { font-size:16px; min-height:46px; }
-      .day-card.collapsed .measurement { display:none; }
     }
     @media (max-width:360px) {
       .app { padding-left:9px; padding-right:9px; }
       .day-head { padding:8px 7px; }
       .day-title { font-size:14px; gap:5px; }
-      .day-controls .icon-btn { width:36px; }
       .measurement { padding:10px; column-gap:5px; }
       .week-fallback { gap:4px; }
       .week-fallback select { padding:6px 2px; }
